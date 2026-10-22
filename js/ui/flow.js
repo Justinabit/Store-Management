@@ -132,7 +132,8 @@ const Choosers = (function () {
    * Choose ONE product, like Main.selectProduct():
    * exact code (linear search) -> exact name (binary search) -> numbered list
    * of partial matches (linear search). The full A-Z list is also shown so
-   * nobody has to type.
+   * nobody has to type. Out-of-stock products are refused for selling, but
+   * can be chosen when opts.allowOutOfStock is true (restocking).
    */
   function product(opts) {
     const inventory = opts.session.inventory;
@@ -149,8 +150,14 @@ const Choosers = (function () {
       scrollIntoViewGently(feedback);
     }
 
+    function showInfo(text) {
+      UI.clear(feedback);
+      feedback.appendChild(UI.message('info', text));
+      scrollIntoViewGently(feedback);
+    }
+
     function pick(chosen) {
-      if (chosen.getStock() === 0) {
+      if (chosen.getStock() === 0 && !opts.allowOutOfStock) {
         showError(new InsufficientStockError(chosen.getName(), 1, 0).message);
         return;
       }
@@ -205,7 +212,7 @@ const Choosers = (function () {
         : h('ul', { class: 'option-list' }, all.map(function (p) { return productOption(p, null, pick); }))
     ]);
 
-    return { element: h('div', { class: 'stack-lg' }, [form, feedback, list]), focus: field.focus };
+    return { element: h('div', { class: 'stack-lg' }, [form, feedback, list]), focus: field.focus, showInfo: showInfo };
   }
 
   /**

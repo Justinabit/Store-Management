@@ -5,7 +5,8 @@
  *       ├── ProductTransaction (abstract)   product, quantity, unit price, total
  *       │     ├── CashSaleTransaction
  *       │     └── UtangTransaction
- *       └── PaymentTransaction
+ *       ├── PaymentTransaction
+ *       └── RestockTransaction
  *
  * TEMPLATE METHOD: execute() and undo() always follow the same safe steps
  * (check first, then change); each subclass fills in the details.
@@ -13,11 +14,12 @@
  * "Transaction"; undo() runs the right reversal for each kind.
  */
 
-/** The three kinds of transaction (mirrors TransactionType.java). */
+/** The kinds of transaction that can be recorded and undone (mirrors TransactionType.java). */
 const TransactionType = Object.freeze({
   CASH_SALE: Object.freeze({ key: 'CASH_SALE', label: 'Cash sale' }),
   UTANG: Object.freeze({ key: 'UTANG', label: 'Utang' }),
-  PAYMENT: Object.freeze({ key: 'PAYMENT', label: 'Payment' })
+  PAYMENT: Object.freeze({ key: 'PAYMENT', label: 'Payment' }),
+  RESTOCK: Object.freeze({ key: 'RESTOCK', label: 'Restock' })
 });
 
 class Transaction {
@@ -435,5 +437,76 @@ class PaymentTransaction extends Transaction {
 
   getUndoResult() {
     return this.#customer.getName() + "'s balance is back to " + Money.format(this.#customer.getBalance()) + '.';
+  }
+}
+
+/**
+ * A stock delivery (mirrors RestockTransaction.java).
+ * Record: stock UP by the quantity received. Total sold, cash sales and
+ *         customer balances do NOT change.
+ * Undo:   stock DOWN by the same quantity.
+ */
+class RestockTransaction extends Transaction {
+  #product;
+  #quantity;
+
+  /** @throws StoreError if the quantity would not keep the stock within the limit */
+  constructor(product, quantity) {
+    super(TransactionType.RESTOCK);
+    if (!(product instanceof Product)) {
+      throw new IllegalArgumentError('A product must be selected.');
+    }
+    this.#product = product;
+    this.#quantity = quantity;
+    this.validate();
+  }
+
+  validate() {
+    if (!Number.isInteger(this.#quantity) || this.#quantity <= 0
+        || this.#quantity > Product.MAX_STOCK - this.#product.getStock()) {
+      throw new StoreError('The quantity must be positive and keep stock at or below ' + Product.MAX_STOCK + '.');
+    }
+  }
+
+  applyChanges() {
+    this.#product.addStock(this.#quantity);
+  }
+
+  reverseChanges() {
+    this.#product.reverseRestock(this.#quantity);
+  }
+
+  getProduct() {
+    return this.#product;
+  }
+
+  getQuantity() {
+    return this.#quantity;
+  }
+
+  /** A restock involves no money. */
+  getAmount() {
+    return Money.ZERO;
+  }
+
+  /** e.g. "Received 20 piece(s) of Milo Sachet" */
+  getDetails() {
+    return 'Received ' + this.#quantity + ' piece(s) of ' + this.#product.getName();
+  }
+
+  getReceipt() {
+    return {
+      title: 'RESTOCK RECORD',
+      rows: [
+        { key: 'number', label: 'Transaction no.', value: '#' + this.getNumber() },
+        { key: 'product', label: 'Product', value: this.#product.getName() },
+        { key: 'received', label: 'Quantity received', value: String(this.#quantity) },
+        { key: 'stock', label: 'Stock', value: String(this.#product.getStock()), strong: true }
+      ]
+    };
+  }
+
+  getUndoResult() {
+    return this.#product.getName() + ' stock is back to ' + this.#product.getStock() + '.';
   }
 }

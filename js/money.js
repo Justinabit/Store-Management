@@ -101,8 +101,9 @@ const Money = (function () {
 
 /*
  * Whole numbers (mirrors InputHelper.parseWholeNumber()).
- * Rejects blank text, negative numbers, decimals, letters and numbers too
- * large for a Java int, with the same messages as the console program.
+ * Rejects blank text, negative numbers, decimals, letters, leading zeros
+ * (e.g. "05") and numbers too large for a Java int, with the same messages
+ * as the console program. A single "0" is fine when the range allows it.
  *
  * @return {{value: number}} or {{error: string}}
  */
@@ -124,11 +125,13 @@ const WholeNumber = (function () {
     if (!/^\d+$/.test(text)) {
       return { error: '"' + text + '" is not a number. Please type digits only.' };
     }
-    let digits = text.replace(/^0+(?=\d)/, '');
-    if (digits.length > 10 || Number(digits) > JAVA_INT_MAX) {
+    if (text.length > 1 && text.charAt(0) === '0') {
+      return { error: 'Leading zeros are not allowed. Enter the number without leading zeros.' };
+    }
+    if (text.length > 10 || Number(text) > JAVA_INT_MAX) {
       return { error: 'That number is too large.' };
     }
-    let value = Number(digits);
+    let value = Number(text);
     if (value < min || value > max) {
       return { error: 'Please enter a number from ' + min + ' to ' + max + '.' };
     }

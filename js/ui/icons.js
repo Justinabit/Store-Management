@@ -13,6 +13,7 @@ const Icons = (function () {
     wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="4" y="7.5" width="16" height="12" rx="2.5"/><path d="M20 12h-3.5a1.75 1.75 0 0 0 0 3.5H20"/>',
     cash: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.75"/><path d="M6 9.5h.01M18 14.5h.01"/>',
     box: '<path d="M20.5 7.5 12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><path d="M12 12v9"/>',
+    restock: '<path d="M4 10v9a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-9"/><path d="M2.5 10h19"/><path d="M12 3v9.5"/><path d="m8.5 9 3.5 3.5L15.5 9"/>',
     boxPlus: '<path d="M20 11V7.5L12 3 4 7.5v9l8 4.5"/><path d="M4 7.5 12 12l8-4.5"/><path d="M12 12v9"/><path d="M18 14.5v6M15 17.5h6"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/>',
     sort: '<path d="M4 6h9M4 12h6M4 18h3"/><path d="M17.5 5v14"/><path d="m14.5 16 3 3 3-3"/>',

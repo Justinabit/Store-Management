@@ -217,7 +217,7 @@ const UI = (function () {
     return h('span', { class: 'pill ' + style.cls }, [icon(style.icon), h('span', { text: status })]);
   }
 
-  const TYPE_ICONS = { CASH_SALE: 'bag', UTANG: 'notebook', PAYMENT: 'wallet' };
+  const TYPE_ICONS = { CASH_SALE: 'bag', UTANG: 'notebook', PAYMENT: 'wallet', RESTOCK: 'restock' };
 
   function typePill(type) {
     return h('span', { class: 'pill pill--type' }, [icon(TYPE_ICONS[type.key] || 'receipt'), h('span', { text: type.label })]);
@@ -273,7 +273,8 @@ const UI = (function () {
 
   const ROW_ICONS = {
     number: 'hash', time: 'calendar', product: 'box', quantity: 'layers', price: 'tag',
-    total: 'cash', stock: 'archive', customer: 'user', balance: 'notebook', paid: 'wallet'
+    total: 'cash', stock: 'archive', customer: 'user', balance: 'notebook', paid: 'wallet',
+    received: 'restock'
   };
 
   /** A list of label/value rows with dashed separators and a small icon per row. */

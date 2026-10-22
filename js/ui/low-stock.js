@@ -20,6 +20,8 @@ Screens['low-stock'] = {
         UI.productTable(low, 'Products with ' + limit + ' pieces or fewer')
       ];
 
+    body.push(UI.buttonRow([UI.linkButton({ href: '#/restock', label: 'Restock product', icon: 'restock', variant: 'primary' })]));
+
     container.appendChild(h('section', { class: 'card stack', 'aria-labelledby': 'low-title' },
       [h('h2', { id: 'low-title', text: 'LOW-STOCK ALERT (' + limit + ' pieces or fewer)' })].concat(body)));
     return null;

@@ -86,6 +86,22 @@ class Product {
     this.#totalSold = this.#totalSold - quantity;
   }
 
+  /** Adds delivered pieces without changing the total sold. */
+  addStock(quantity) {
+    if (!Number.isInteger(quantity) || quantity <= 0 || quantity > Product.MAX_STOCK - this.#stock) {
+      throw new StoreError('Quantity received must be from 1 to ' + (Product.MAX_STOCK - this.#stock) + '.');
+    }
+    this.#stock = this.#stock + quantity;
+  }
+
+  /** Removes a previously recorded delivery when it is undone. */
+  reverseRestock(quantity) {
+    if (!Number.isInteger(quantity) || quantity <= 0 || quantity > this.#stock) {
+      throw new StoreError('Cannot undo restock: there are not enough pieces in stock.');
+    }
+    this.#stock = this.#stock - quantity;
+  }
+
   static #requireValidCode(code) {
     let problem = TextRules.checkCode(code);
     if (problem !== null) {

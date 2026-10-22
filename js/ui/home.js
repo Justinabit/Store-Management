@@ -85,6 +85,7 @@ Screens.home = {
       ], true),
       group('group-products', 'Products', [
         tile('#/add-product', 'boxPlus', 'Add product', 'A unique code and name, a price, and the opening stock.'),
+        tile('#/restock', 'restock', 'Restock product', "Add the pieces you received to a product's stock."),
         tile('#/search-product', 'search', 'Search product', 'By exact name, by code, or by part of the name.'),
         tile('#/sorted', 'sort', 'Display products sorted', 'By name, price, stock, or best sellers.'),
         tile('#/low-stock', 'alert', 'Low-stock alert', 'Products with ' + limit + ' or fewer pieces, lowest stock first.')
@@ -94,7 +95,7 @@ Screens.home = {
       ]),
       group('group-records', 'Records', [
         tile('#/reports', 'report', 'Reports', 'Cash sales, outstanding utang, top 3 best sellers, customers with utang.'),
-        tile('#/undo', 'undo', 'Undo last transaction', 'Reverse the most recent cash sale, utang or payment.'),
+        tile('#/undo', 'undo', 'Undo last transaction', 'Reverse the most recent cash sale, utang, payment or restock.'),
         exitTile
       ])
     ]);
@@ -142,8 +143,10 @@ Screens.home = {
         ]);
       })));
     }
-    restockBody.push(h('p', { style: 'margin-top: var(--s-2)' },
-      UI.linkButton({ href: '#/low-stock', label: 'View low-stock alert', iconRight: 'arrowRight', variant: 'link' })));
+    restockBody.push(h('div', { class: 'btn-row', style: 'margin-top: var(--s-2)' }, [
+      UI.linkButton({ href: '#/restock', label: 'Restock product', icon: 'restock', variant: 'secondary' }),
+      UI.linkButton({ href: '#/low-stock', label: 'View low-stock alert', iconRight: 'arrowRight', variant: 'link' })
+    ]));
 
     const restock = h('aside', { class: 'card card--tight', 'aria-labelledby': 'restock-title' }, [
       h('div', { class: 'card-head' }, [

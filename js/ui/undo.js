@@ -1,12 +1,13 @@
 /*
- * 10. Undo last transaction (Main.undoLastTransaction()).
+ * 10. Undo last transaction (Main.undoLastTransaction()): a cash sale,
+ * utang, payment or restock.
  * The undo stack is LIFO: PEEK at the top transaction, ask, undo it, and
  * POP it only after the undo succeeded. Older transactions cannot be picked.
  */
 Screens.undo = {
   nav: 'undo',
   title: 'Undo last transaction',
-  lead: 'Reverse the most recent cash sale, utang or payment.',
+  lead: 'Reverse the most recent cash sale, utang, payment or restock.',
 
   render: function (container) {
     const h = UI.h;
