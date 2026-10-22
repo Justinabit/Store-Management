@@ -118,13 +118,23 @@ h3 {
 }
 
 h1 {
-  font-size: 2.25rem;
+  font-size: 1.875rem;
   font-weight: 700;
 }
 
 h2 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
+}
+
+@container main (min-width: 48rem) {
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
 }
 
 h3 {
@@ -149,6 +159,14 @@ input {
 
 button {
   cursor: pointer;
+}
+
+a,
+button,
+input,
+label {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(58, 71, 194, 0.15);
 }
 
 ul,
@@ -213,27 +231,57 @@ ol {
   outline: none;
 }
 
-/* ----- 4. App layout ----------------------------------------------------- */
+/* ----- 4. App layout (mobile first) ------------------------------------- */
+
+/* Phones get one column: a small app bar with the Menu button, then the page.
+   shell.js adds "is-wide" to <html> when the window is at least 60rem wide
+   (so it grows with the text size); only then does the menu sit beside the
+   page as a left column. */
 
 .app {
   display: grid;
-  grid-template-columns: 18rem minmax(0, 1fr);
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
   max-width: 100rem;
   margin: 0 auto;
+  padding: 0 var(--s-2) var(--s-4);
+  padding-left: max(var(--s-2), env(safe-area-inset-left));
+  padding-right: max(var(--s-2), env(safe-area-inset-right));
+}
+
+.is-wide .app {
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: var(--s-3);
   padding: var(--s-3);
 }
 
+/* The menu: hidden on phones until "Menu" is pressed, then full screen. */
 .sidebar {
-  align-self: start;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: var(--s-2);
 }
 
-/* The menu stays in view while scrolling, but only when all of it fits on
-   the screen (checked by shell.js), so nothing is ever hidden. */
-.sidebar--sticky {
+html:not(.is-wide) .app.nav-open .sidebar {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow-y: auto;
+  padding: var(--s-2);
+  padding-top: max(var(--s-2), env(safe-area-inset-top));
+  padding-bottom: max(var(--s-2), env(safe-area-inset-bottom));
+  background: linear-gradient(135deg, var(--page-a), var(--page-b));
+}
+
+.is-wide .sidebar {
+  display: flex;
+  align-self: start;
+}
+
+/* On wide screens the menu stays in view while scrolling, but only when all
+   of it fits on the screen (checked by shell.js), so nothing is ever hidden. */
+.is-wide .sidebar--sticky {
   position: sticky;
   top: var(--s-3);
 }
@@ -245,7 +293,67 @@ ol {
   width: 100%;
   display: flex;
   flex-direction: column;
+  gap: var(--s-2);
+}
+
+.is-wide .main-col {
   gap: var(--s-3);
+}
+
+/* Phone app bar: the store name and the Menu button stay at the top. */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin: 0 calc(-1 * var(--s-2));
+  padding: 0.625rem var(--s-2);
+  padding-top: max(0.625rem, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--line);
+  background: rgba(228, 232, 250, 0.9);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.is-wide .appbar {
+  display: none;
+}
+
+.appbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.appbar-brand .brand-mark {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.appbar-brand .brand-mark svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.appbar .menu-btn {
+  min-height: 3rem;
+  padding: 0.375rem 1.125rem;
+  flex: none;
+}
+
+/* Keep focused headings and sticky table headers clear of the app bar. */
+html:not(.is-wide) {
+  --sticky-top: 4.375rem;
+  scroll-padding-top: 5rem;
 }
 
 /* Brand */
@@ -262,6 +370,7 @@ ol {
   gap: 0.875rem;
   padding: 0.75rem 1rem 0.75rem 0.75rem;
   flex: 1;
+  min-width: 0;
   border-radius: var(--r-card);
   background: var(--card);
   border: 1px solid var(--line);
@@ -316,7 +425,7 @@ ol {
   box-shadow: var(--shadow);
 }
 
-.nav-exit {
+.is-wide .nav-exit {
   margin-top: auto;
 }
 
@@ -403,66 +512,48 @@ ol {
   background: var(--out-bg);
 }
 
-.btn.sidebar-close,
-.btn.menu-btn {
+.btn.sidebar-close {
   display: none;
+  flex: none;
+  white-space: nowrap;
 }
 
-/* Compact layout: the menu becomes a full-screen list opened by a button.
-   The class is set by shell.js from the window width and the text size. */
-
-.is-compact .app {
-  grid-template-columns: minmax(0, 1fr);
-  padding: var(--s-2);
-}
-
-.is-compact .sidebar {
-  display: none;
-}
-
-.is-compact .btn.menu-btn {
+html:not(.is-wide) .app.nav-open .btn.sidebar-close {
   display: inline-flex;
-}
-
-.is-compact .app.nav-open .sidebar {
-  display: flex;
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  overflow-y: auto;
-  padding: var(--s-2);
-  background: linear-gradient(135deg, var(--page-a), var(--page-b));
-}
-
-.is-compact .app.nav-open .btn.sidebar-close {
-  display: inline-flex;
-}
-
-.is-compact .nav-exit {
-  margin-top: 0;
 }
 
 body.nav-locked {
   overflow: hidden;
 }
 
-/* ----- 5. Top bar -------------------------------------------------------- */
+/* ----- 5. Top bar (page title, text size) -------------------------------- */
 
 .topbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--s-2) var(--s-3);
-  padding: var(--s-1) var(--s-1) 0;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-1) 0.25rem 0;
+}
+
+@container main (min-width: 48rem) {
+  .topbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s-2) var(--s-3);
+    padding: var(--s-1) var(--s-1) 0;
+  }
 }
 
 .topbar-title {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s-2);
   min-width: 0;
-  flex: 1 1 24rem;
+}
+
+@container main (min-width: 48rem) {
+  .topbar-title {
+    flex: 1 1 24rem;
+  }
 }
 
 .page-lead {
@@ -503,15 +594,15 @@ body.nav-locked {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem 0.75rem;
 }
 
 .text-size {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.125rem;
   padding: 0.25rem;
-  padding-left: 1rem;
+  padding-left: 0.875rem;
   border-radius: var(--r-pill);
   background: var(--card);
   border: 1px solid var(--line);
@@ -523,24 +614,31 @@ body.nav-locked {
   font-size: 1rem;
   font-weight: 700;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .text-size button {
   min-width: 3rem;
   min-height: 3rem;
-  padding: 0 0.75rem;
+  padding: 0 0.625rem;
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
+  font-size: 1.125rem;
   font-weight: 800;
+  white-space: nowrap;
   transition: background-color 0.16s var(--ease);
 }
 
-.text-size button:nth-of-type(2) {
+.text-size [data-text-size="87.5"] {
+  font-size: 1rem;
+}
+
+.text-size [data-text-size="120"] {
   font-size: 1.25rem;
 }
 
-.text-size button:nth-of-type(3) {
+.text-size [data-text-size="140"] {
   font-size: 1.4rem;
 }
 
@@ -557,15 +655,22 @@ body.nav-locked {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 3.5rem;
-  padding: 0 1.125rem;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.875rem;
   border-radius: var(--r-pill);
   background: var(--card);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
   font-size: 1rem;
   font-weight: 700;
   color: var(--muted);
+}
+
+@container main (min-width: 48rem) {
+  .memory-chip {
+    min-height: 3.5rem;
+    padding: 0 1.125rem;
+    box-shadow: var(--shadow);
+  }
 }
 
 .memory-chip .icon {
@@ -607,7 +712,7 @@ body.nav-locked {
 
 .card {
   min-width: 0;
-  padding: var(--s-4);
+  padding: 1.25rem;
   border-radius: var(--r-card);
   background: var(--card);
   border: 1px solid var(--line);
@@ -617,7 +722,17 @@ body.nav-locked {
 }
 
 .card--tight {
-  padding: var(--s-3);
+  padding: 1.25rem;
+}
+
+@container main (min-width: 40rem) {
+  .card {
+    padding: var(--s-4);
+  }
+
+  .card--tight {
+    padding: var(--s-3);
+  }
 }
 
 .card-head {
@@ -656,14 +771,15 @@ body.nav-locked {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
   align-items: start;
 }
 
-@container main (max-width: 52rem) {
+@container main (min-width: 52rem) {
   .grid-2 {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-3);
   }
 }
 
@@ -737,13 +853,28 @@ body.nav-locked {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-2);
+  gap: 0.75rem var(--s-2);
+}
+
+.btn-row > .btn {
+  flex: 1 1 100%;
+}
+
+@container (min-width: 30rem) {
+  .btn-row > .btn {
+    flex: 0 1 auto;
+  }
+}
+
+.btn:active {
+  filter: brightness(0.94);
 }
 
 /* ----- 8. Messages ------------------------------------------------------- */
 
 .msg {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.875rem;
   padding: 0.875rem 0.875rem 0.875rem 1rem;
@@ -764,7 +895,7 @@ body.nav-locked {
 }
 
 .msg-text {
-  flex: 1;
+  flex: 1 1 12rem;
   align-self: center;
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -777,6 +908,7 @@ body.nav-locked {
 }
 
 .msg-close {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -923,27 +1055,28 @@ body.nav-locked {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
 }
 
-@container main (max-width: 60rem) {
+@container main (min-width: 19rem) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container main (max-width: 34rem) {
+@container main (min-width: 60rem) {
   .kpi-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-3);
   }
 }
 
 .kpi {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: var(--s-3);
+  gap: 0.375rem;
+  padding: 1rem;
 }
 
 .kpi-head {
@@ -954,15 +1087,16 @@ body.nav-locked {
 }
 
 .kpi-label {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .kpi-badge {
-  display: grid;
+  display: none;
   place-items: center;
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   flex: none;
   border-radius: 50%;
   background: var(--primary-soft);
@@ -975,20 +1109,53 @@ body.nav-locked {
 }
 
 .kpi-value {
-  font-size: 2.75rem;
+  font-size: 1.75rem;
   font-weight: 750;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums lining-nums;
-  overflow-wrap: anywhere;
 }
 
+/* On phones "PHP" sits on its own small line above the amount. */
 .kpi-unit {
-  margin-right: 0.375rem;
-  font-size: 1.375rem;
+  display: block;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0;
   color: var(--muted);
+}
+
+@container main (min-width: 40rem) {
+  .kpi-badge {
+    display: grid;
+  }
+}
+
+@container main (min-width: 60rem) {
+  .kpi {
+    gap: 0.5rem;
+    padding: var(--s-3);
+  }
+
+  .kpi-label {
+    font-size: 1.125rem;
+  }
+
+  .kpi-badge {
+    width: 3rem;
+    height: 3rem;
+  }
+
+
+  .kpi-value {
+    font-size: 2.75rem;
+  }
+
+  .kpi-unit {
+    display: inline;
+    margin-right: 0.375rem;
+    font-size: 1.375rem;
+  }
 }
 
 .kpi-note {
@@ -1000,14 +1167,15 @@ body.nav-locked {
 
 .home-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22rem;
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
   align-items: start;
 }
 
-@container main (max-width: 62rem) {
+@container main (min-width: 62rem) {
   .home-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: var(--s-3);
   }
 }
 
@@ -1078,11 +1246,16 @@ body.nav-locked {
 }
 
 .tile--feature {
-  flex-direction: column;
-  min-height: 11rem;
-  padding: var(--s-3);
   border-color: transparent;
   background: var(--primary-soft);
+}
+
+@container main (min-width: 40rem) {
+  .tile--feature {
+    flex-direction: column;
+    min-height: 11rem;
+    padding: var(--s-3);
+  }
 }
 
 .tile--feature .tile-icon {
@@ -1213,13 +1386,13 @@ body.nav-locked {
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-3);
 }
 
-@container main (max-width: 44rem) {
+@container main (min-width: 44rem) {
   .form-row {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1278,13 +1451,24 @@ body.nav-locked {
 
 .search-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--s-2);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
 }
 
-.search-row .field {
-  flex: 1 1 20rem;
+@container main (min-width: 36rem) {
+  .search-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--s-2);
+  }
+}
+
+@container main (min-width: 36rem) {
+  .search-row .field {
+    flex: 1 1 20rem;
+  }
 }
 
 .error-summary {
@@ -1341,10 +1525,77 @@ body.nav-locked {
 
 .flow-toolbar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2);
+}
+
+.flow-steps {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Phones: one line, "Step 2 of 4 · Quantity", over a progress bar. The full
+   list of steps stays available to screen readers. */
+.steps-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.steps-compact-text {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.steps-compact-text span {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.steps-bar {
+  height: 0.5rem;
+  border-radius: var(--r-pill);
+  background: var(--neutral-bg);
+  overflow: hidden;
+}
+
+.steps-bar span {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+}
+
+.flow-steps .steps {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@container main (min-width: 44rem) {
+  .flow-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .steps-compact {
+    display: none;
+  }
+
+  .flow-steps .steps {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
 }
 
 .steps {
@@ -1407,14 +1658,15 @@ body.nav-locked {
 
 .flow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 19rem;
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
   align-items: start;
 }
 
-@container main (max-width: 56rem) {
-  .flow {
-    grid-template-columns: minmax(0, 1fr);
+@container main (min-width: 56rem) {
+  .flow:not(.flow--single) {
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    gap: var(--s-3);
   }
 }
 
@@ -1446,7 +1698,7 @@ body.nav-locked {
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
-  padding: var(--s-3);
+  padding: 1rem;
   border-radius: var(--r-control);
   background: var(--surface);
   border: 1.5px solid var(--line-strong);
@@ -1478,10 +1730,14 @@ body.nav-locked {
   gap: 0.5rem;
 }
 
+/* Rows are a small grid. On phones the status pill sits under the name, so
+   long names never get squeezed; with more room it moves to the right. */
 .option {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "main chevron";
   align-items: center;
-  gap: 1rem;
+  gap: 0.375rem 0.875rem;
   width: 100%;
   min-height: 4.25rem;
   padding: 0.75rem 1rem;
@@ -1525,16 +1781,56 @@ body.nav-locked {
   color: var(--muted);
 }
 
-.option-side {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem 0.75rem;
+.option--status {
+  grid-template-areas:
+    "main chevron"
+    "status chevron";
 }
 
-.option-side > .icon {
+.option--numbered {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "num main chevron";
+}
+
+.option--numbered.option--status {
+  grid-template-areas:
+    "num main chevron"
+    "num status chevron";
+}
+
+@container main (min-width: 36rem) {
+  .option--status {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "main status chevron";
+  }
+
+  .option--numbered.option--status {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "num main status chevron";
+  }
+}
+
+.option-num {
+  grid-area: num;
+}
+
+.option-main {
+  grid-area: main;
+}
+
+.option-status {
+  grid-area: status;
+  justify-self: start;
+}
+
+.option-chevron {
+  grid-area: chevron;
+  display: grid;
   color: var(--primary);
+}
+
+.option:active {
+  background: var(--primary-soft);
 }
 
 .option--create {
@@ -1576,7 +1872,7 @@ body.nav-locked {
 
 .data-table th {
   position: sticky;
-  top: 0;
+  top: var(--sticky-top, 0);
   z-index: 1;
   padding: 0.875rem 1rem;
   background: var(--table-head);
@@ -1913,12 +2209,26 @@ body.nav-locked {
 /* ----- 17. Segmented control --------------------------------------------- */
 
 .segmented {
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.25rem;
   padding: 0.375rem;
   border-radius: var(--r-card);
   background: var(--neutral-bg);
+}
+
+.segmented button {
+  text-align: left;
+}
+
+@container main (min-width: 48rem) {
+  .segmented {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  .segmented button {
+    text-align: center;
+  }
 }
 
 .segmented button {
@@ -1950,12 +2260,17 @@ body.nav-locked {
 
 .big-number {
   margin-top: 0.5rem;
-  font-size: 2.75rem;
+  font-size: 2.125rem;
   font-weight: 750;
   line-height: 1.1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums lining-nums;
-  overflow-wrap: anywhere;
+}
+
+@container main (min-width: 40rem) {
+  .big-number {
+    font-size: 2.75rem;
+  }
 }
 
 .note {
@@ -2028,10 +2343,17 @@ body.nav-locked {
 }
 
 .dialog-body {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  padding: var(--s-4);
+  padding: 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .dialog-body {
+    padding: var(--s-4);
+  }
 }
 
 .dialog-icon {
@@ -2127,7 +2449,7 @@ body.nav-locked {
 
 .receipt--inner {
   max-width: 36rem;
-  padding: var(--s-3);
+  padding: 1rem;
   border-radius: var(--r-control);
   background: var(--surface);
   border: 1.5px solid var(--line-strong);
@@ -2151,4 +2473,54 @@ a.strong,
   flex-basis: 100%;
   margin-left: 3rem;
   text-align: left;
+}
+
+@container main (min-width: 40rem) {
+  .receipt--inner {
+    padding: var(--s-3);
+  }
+}
+
+@container main (min-width: 40rem) {
+  .confirm-box {
+    padding: var(--s-3);
+  }
+}
+
+/* On phones the receipt already shows everything, so the "so far" panel is
+   not repeated under it on the last step. */
+.flow--done .summary-panel {
+  display: none;
+}
+
+@container main (min-width: 56rem) {
+  .flow--done .summary-panel {
+    display: block;
+  }
+}
+
+/* Phone menu: the app bar already shows the store name, so the menu opens
+   with one wide "Close menu" button at the top instead. */
+html:not(.is-wide) .sidebar .brand {
+  display: none;
+}
+
+html:not(.is-wide) .app.nav-open .btn.sidebar-close {
+  flex: 1 1 auto;
+}
+
+/* An empty "please fix" area at the top of a form takes no space. */
+.form > div:empty {
+  display: none;
+}
+
+/* Customer page: the action buttons span the card on phones. */
+.entity-head > .btn-row {
+  flex: 1 1 100%;
+}
+
+@container main (min-width: 40rem) {
+  .entity-head > .btn-row {
+    flex: 0 1 auto;
+  }
 }

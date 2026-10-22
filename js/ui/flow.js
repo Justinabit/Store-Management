@@ -12,6 +12,8 @@
 class FlowLayout {
   #steps;
   #stepsHolder;
+  #toolbar;
+  #flowGrid;
   #cancelButton;
   #stage;
   #summaryBody = null;
@@ -45,27 +47,38 @@ class FlowLayout {
       ]);
     }
 
-    UI.append(container, [
-      h('div', { class: 'flow-toolbar' }, [this.#stepsHolder, this.#cancelButton]),
-      h('div', { class: 'flow' + (summary ? '' : ' flow--single') }, [this.#stage, summary])
-    ]);
+    this.#flowGrid = h('div', { class: 'flow' + (summary ? '' : ' flow--single') }, [this.#stage, summary]);
+    this.#toolbar = h('div', { class: 'flow-toolbar' }, [this.#stepsHolder, this.#cancelButton]);
+    UI.append(container, [this.#toolbar, this.#flowGrid]);
   }
 
   /** Highlights the current step. The Cancel button is hidden on the last ("Done") step. */
   setStep(index) {
     UI.clear(this.#stepsHolder);
     this.#stepsHolder.appendChild(UI.steps(this.#steps, index));
-    this.#cancelButton.hidden = index === this.#steps.length - 1;
+    const done = index === this.#steps.length - 1;
+    this.#cancelButton.hidden = done;
+    this.#flowGrid.classList.toggle('flow--done', done);
   }
 
-  /** Replaces the step content: a heading, one plain sentence, then the nodes. Focus moves to the heading. */
+  /**
+   * Replaces the step content: a heading, one plain sentence, then the nodes.
+   * Focus moves to the heading, and if the steps were scrolled out of view
+   * (for example after choosing a product far down a list) the new step is
+   * shown from its top, below the phone app bar.
+   */
   show(title, lead, nodes, opts) {
     const h = UI.h;
     UI.clear(this.#stage);
     const heading = h('h2', { id: this.#headingId, tabindex: '-1', text: title });
     UI.append(this.#stage, [h('div', { class: 'stage-head' }, [heading, lead ? h('p', { text: lead }) : null]), nodes]);
     if (!opts || opts.focus !== false) {
-      heading.focus();
+      heading.focus({ preventScroll: true });
+      const offset = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      const top = this.#toolbar.getBoundingClientRect().top;
+      if (top < offset || top > window.innerHeight / 2) {
+        this.#toolbar.scrollIntoView({ block: 'start' });
+      }
     }
   }
 
@@ -85,15 +98,15 @@ class FlowLayout {
 const Choosers = (function () {
   const h = UI.h;
 
-  function chevron() {
-    return UI.icon('chevronRight');
+  function chevron(iconName) {
+    return h('span', { class: 'option-chevron' }, UI.icon(iconName || 'chevronRight'));
   }
 
   /** A large selectable row for one product. */
   function productOption(product, number, onPick) {
     return h('li', null, h('button', {
       type: 'button',
-      class: 'option',
+      class: 'option option--status' + (number ? ' option--numbered' : ''),
       onClick: function () { onPick(product); }
     }, [
       number ? h('span', { class: 'option-num', text: String(number) }) : null,
@@ -101,7 +114,8 @@ const Choosers = (function () {
         h('span', { class: 'option-title', text: product.getName() }),
         h('span', { class: 'option-meta tabular', text: product.getCode() + '  ·  ' + Money.format(product.getPrice()) + '  ·  Stock ' + product.getStock() })
       ]),
-      h('span', { class: 'option-side' }, [UI.statusPill(UI.stockStatus(product)), chevron()])
+      h('span', { class: 'option-status' }, UI.statusPill(UI.stockStatus(product))),
+      chevron()
     ]));
   }
 
@@ -111,7 +125,7 @@ const Choosers = (function () {
       + (customer.hasOutstandingUtang() ? '' : '  (no outstanding utang)');
     return h('li', null, h('button', {
       type: 'button',
-      class: 'option',
+      class: 'option' + (number ? ' option--numbered' : ''),
       onClick: function () { onPick(customer); }
     }, [
       number ? h('span', { class: 'option-num', text: String(number) }) : null,
@@ -119,7 +133,7 @@ const Choosers = (function () {
         h('span', { class: 'option-title', text: customer.getName() }),
         h('span', { class: 'option-meta tabular', text: balanceText })
       ]),
-      h('span', { class: 'option-side' }, chevron())
+      chevron()
     ]));
   }
 
@@ -283,7 +297,7 @@ const Choosers = (function () {
       if (matches.length > 0) {
         const createRow = h('li', null, h('button', {
           type: 'button',
-          class: 'option option--create',
+          class: 'option option--create option--numbered',
           onClick: function () { pick(new Customer(name), true); }
         }, [
           h('span', { class: 'option-num', text: String(matches.length + 1) }),
@@ -291,7 +305,7 @@ const Choosers = (function () {
             h('span', { class: 'option-title', text: 'Create a NEW customer named "' + name + '"' }),
             h('span', { class: 'option-meta', text: 'Saved only when the utang is recorded' })
           ]),
-          h('span', { class: 'option-side' }, UI.icon('userPlus'))
+          chevron('userPlus')
         ]));
         showPanel('No exact match. Customers whose names contain "' + name + '":',
           h('ul', { class: 'option-list' }, matches.map(function (c, i) { return customerOption(c, i + 1, pick); }).concat([createRow])));

@@ -202,6 +202,22 @@ const UI = (function () {
     }
   }
 
+  /**
+   * A big amount for the status cards and reports: a small "PHP" label, then
+   * the number. Long amounts may break after a comma instead of overflowing.
+   */
+  function bigMoney(centavos) {
+    const parts = Money.format(centavos).slice(4).split(',');
+    const nodes = [h('span', { class: 'kpi-unit', text: 'PHP' }), srOnly(' ')];
+    parts.forEach(function (part, i) {
+      nodes.push(part + (i < parts.length - 1 ? ',' : ''));
+      if (i < parts.length - 1) {
+        nodes.push(h('wbr'));
+      }
+    });
+    return nodes;
+  }
+
   // ----- Status pills ---------------------------------------------------
 
   const PILL_STYLES = {
@@ -373,8 +389,19 @@ const UI = (function () {
 
   // ----- Step indicator -------------------------------------------------
 
+  /**
+   * The step indicator: the full list of steps, plus a one-line version for
+   * phones ("Step 2 of 4 · Quantity" over a progress bar). CSS shows one of the two.
+   */
   function steps(names, current) {
-    return h('ol', { class: 'steps', 'aria-label': 'Steps' }, names.map(function (name, i) {
+    const compact = h('div', { class: 'steps-compact', 'aria-hidden': 'true' }, [
+      h('p', { class: 'steps-compact-text' }, [
+        'Step ' + (current + 1) + ' of ' + names.length + '  ',
+        h('span', { text: '\u00b7  ' + names[current] })
+      ]),
+      h('div', { class: 'steps-bar' }, h('span', { style: 'width:' + Math.round((current + 1) / names.length * 100) + '%' }))
+    ]);
+    const list = h('ol', { class: 'steps', 'aria-label': 'Steps' }, names.map(function (name, i) {
       const state = i < current ? 'done' : (i === current ? 'current' : 'todo');
       const num = h('span', { class: 'step-num' }, state === 'done' ? icon('check') : String(i + 1));
       return h('li', { class: 'step step--' + state, 'aria-current': state === 'current' ? 'step' : null }, [
@@ -384,6 +411,10 @@ const UI = (function () {
         state === 'current' ? srOnly(' (current step)') : null
       ]);
     }));
+    const both = document.createDocumentFragment();
+    both.appendChild(list);
+    both.appendChild(compact);
+    return both;
   }
 
   // ----- Confirmation dialog (only for questions the program also asks) --
@@ -436,6 +467,7 @@ const UI = (function () {
     buttonRow: buttonRow,
     message: message,
     emptyState: emptyState,
+    bigMoney: bigMoney,
     methodCaption: methodCaption,
     announce: announce,
     focusPageHeading: focusPageHeading,

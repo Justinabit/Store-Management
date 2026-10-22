@@ -18,6 +18,14 @@ needed.
 All records are kept in memory only. Reloading or closing the page clears
 them and starts again from the sample data (7 products, 3 customers).
 
+**Phones first:** the layout is built for phones and grows for tablets and
+computers. On a phone, the store name and a **Menu** button stay at the top,
+steps show as "Step 2 of 4" with a progress bar, and buttons fill the width so
+they are easy to tap. From about 960 px wide the menu sits on the left.
+
+**Text size:** choose **A−** (smaller), **A** (normal), **A+** or **A++**
+(larger) at the top of any page. The choice is remembered on that device.
+
 **Restocking:** choose *Restock product*, pick a product (out-of-stock ones
 included) and enter the number of pieces received. For example, Lucky Me
 Pancit Canton with 4 pieces plus a delivery of 20 becomes 24. Stock cannot go

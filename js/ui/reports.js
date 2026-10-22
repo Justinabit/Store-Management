@@ -15,7 +15,7 @@ Screens.reports = {
     function total(id, label, centavos, note) {
       return h('section', { class: 'card', 'aria-labelledby': id }, [
         h('h2', { id: id, class: 'kpi-label', text: label }),
-        h('p', { class: 'big-number' }, [h('span', { class: 'kpi-unit', text: 'PHP' }), Money.format(centavos).slice(4)]),
+        h('p', { class: 'big-number' }, UI.bigMoney(centavos)),
         h('p', { class: 'note', text: note })
       ]);
     }

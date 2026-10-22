@@ -9,10 +9,15 @@ const Screens = {};
 
 const Shell = (function () {
   const TEXT_SIZE_KEY = 'sari-sari-store-text-size';
-  const TEXT_SIZES = [100, 120, 140];
+  /** Smaller, normal, larger, largest (percent of the browser's text size). */
+  const TEXT_SIZES = [87.5, 100, 120, 140];
 
-  /** Below this width (in rem, so it grows with the text size) the menu folds into a button. */
-  const COMPACT_BELOW_REM = 60;
+  /**
+   * From this width up (in rem, so it grows with the text size) the menu sits
+   * beside the page. Below it, the phone layout is used: an app bar with a
+   * Menu button that opens the menu full screen.
+   */
+  const WIDE_FROM_REM = 60;
 
   let appEl;
   let navOpen = false;
@@ -35,8 +40,8 @@ const Shell = (function () {
 
     document.getElementById('menu-btn').addEventListener('click', openNav);
     document.getElementById('nav-close').addEventListener('click', closeNav);
-    window.addEventListener('resize', updateCompact);
-    updateCompact();
+    window.addEventListener('resize', updateLayout);
+    updateLayout();
   }
 
   // ----- Page header ----------------------------------------------------
@@ -78,7 +83,7 @@ const Shell = (function () {
   function initTextSize() {
     let saved = 100;
     try {
-      saved = parseInt(window.localStorage.getItem(TEXT_SIZE_KEY), 10) || 100;
+      saved = parseFloat(window.localStorage.getItem(TEXT_SIZE_KEY)) || 100;
     } catch (e) {
       saved = 100;   // storage may be blocked; the app works without it
     }
@@ -87,7 +92,7 @@ const Shell = (function () {
     }
     document.querySelectorAll('[data-text-size]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        applyTextSize(parseInt(btn.getAttribute('data-text-size'), 10), true);
+        applyTextSize(parseFloat(btn.getAttribute('data-text-size')), true);
       });
     });
     applyTextSize(saved, false);
@@ -96,7 +101,7 @@ const Shell = (function () {
   function applyTextSize(percent, remember) {
     document.documentElement.style.fontSize = percent + '%';
     document.querySelectorAll('[data-text-size]').forEach(function (btn) {
-      btn.setAttribute('aria-pressed', String(parseInt(btn.getAttribute('data-text-size'), 10) === percent));
+      btn.setAttribute('aria-pressed', String(parseFloat(btn.getAttribute('data-text-size')) === percent));
     });
     if (remember) {
       try {
@@ -105,22 +110,22 @@ const Shell = (function () {
         // Not saved: the choice still applies for this visit.
       }
     }
-    updateCompact();
+    updateLayout();
   }
 
-  // ----- Compact menu ---------------------------------------------------
+  // ----- Layout and the phone menu ---------------------------------------
 
-  function updateCompact() {
+  function updateLayout() {
     const rootPx = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
-    const compact = window.innerWidth < COMPACT_BELOW_REM * rootPx;
-    document.documentElement.classList.toggle('is-compact', compact);
-    if (!compact && navOpen) {
+    const wide = window.innerWidth >= WIDE_FROM_REM * rootPx;
+    document.documentElement.classList.toggle('is-wide', wide);
+    if (wide && navOpen) {
       closeNav(false);
     }
     // Keep the menu in view while scrolling only if all of it fits on the screen.
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('sidebar--sticky');
-    if (!compact && sidebar.offsetHeight <= window.innerHeight - 2 * 1.5 * rootPx) {
+    if (wide && sidebar.offsetHeight <= window.innerHeight - 2 * 1.5 * rootPx) {
       sidebar.classList.add('sidebar--sticky');
     }
   }

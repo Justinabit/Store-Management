@@ -2,10 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#E4E8FA">
   <title>Sari-Sari Store</title>
   <meta name="description" content="Sari-Sari Store: Debt (Utang) and Stock Management System">
   <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Choose the layout before the page is drawn: phones first, and the
+    // left-hand menu only on wide screens (shell.js keeps this up to date).
+    (function () {
+      var root = document.documentElement;
+      try {
+        var saved = parseFloat(window.localStorage.getItem('sari-sari-store-text-size'));
+        if ([87.5, 100, 120, 140].indexOf(saved) !== -1) {
+          root.style.fontSize = saved + '%';
+        }
+      } catch (e) {
+        // Storage can be blocked; the normal text size is used.
+      }
+      var rootPx = parseFloat(window.getComputedStyle(root).fontSize) || 16;
+      if (window.innerWidth >= 60 * rootPx) {
+        root.classList.add('is-wide');
+      }
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -75,19 +95,23 @@
 
     <!-- Right: page title, then the current screen -->
     <div class="main-col">
+      <!-- Phones: store name and Menu button, always at the top -->
+      <div class="appbar">
+        <a class="appbar-brand" href="#/home"><span class="brand-mark" data-logo></span><span>Sari-Sari Store</span></a>
+        <button class="btn btn--secondary menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="sidebar" data-icon="menu"><span>Menu</span></button>
+      </div>
+
       <header class="topbar">
         <div class="topbar-title">
-          <button class="btn btn--secondary menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="sidebar" data-icon="menu"><span>Menu</span></button>
-          <div>
-            <h1 id="page-title" tabindex="-1">Home</h1>
-            <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb" hidden></nav>
-            <p class="page-lead" id="page-lead"></p>
-          </div>
+          <h1 id="page-title" tabindex="-1">Home</h1>
+          <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb" hidden></nav>
+          <p class="page-lead" id="page-lead"></p>
         </div>
 
         <div class="topbar-tools">
           <div class="text-size" role="group" aria-labelledby="text-size-label">
             <span class="text-size-label" id="text-size-label">Text size:</span>
+            <button type="button" data-text-size="87.5" aria-pressed="false">A&minus;<span class="sr-only"> smaller</span></button>
             <button type="button" data-text-size="100" aria-pressed="true">A<span class="sr-only"> normal</span></button>
             <button type="button" data-text-size="120" aria-pressed="false">A+<span class="sr-only"> larger</span></button>
             <button type="button" data-text-size="140" aria-pressed="false">A++<span class="sr-only"> largest</span></button>

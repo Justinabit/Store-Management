@@ -27,7 +27,7 @@ Screens.home = {
     // ----- Status cards --------------------------------------------------
 
     function money(centavos) {
-      return [h('span', { class: 'kpi-unit', text: 'PHP' }), Money.format(centavos).slice(4)];
+      return UI.bigMoney(centavos);
     }
 
     function kpi(label, iconName, value, note, tone) {
