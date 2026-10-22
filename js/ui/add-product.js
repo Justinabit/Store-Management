@@ -67,6 +67,18 @@ Screens['add-product'] = {
       const order = ['code', 'name', 'price', 'stock'];
       const summaryHolder = h('div');
 
+      // While the Review button is being pressed, skip the leave-a-box check:
+      // an error line appearing or disappearing would move the button and the
+      // click would be lost. Review checks every box anyway.
+      let pressingReview = false;
+      const reviewButton = UI.button({ type: 'submit', label: 'Review this product', iconRight: 'arrowRight', variant: 'primary' });
+      reviewButton.addEventListener('pointerdown', function () {
+        pressingReview = true;
+        window.addEventListener('pointerup', function () {
+          window.setTimeout(function () { pressingReview = false; }, 0);
+        }, { once: true });
+      });
+
       order.forEach(function (key) {
         const field = fields[key];
         field.input.addEventListener('input', function () {
@@ -74,6 +86,9 @@ Screens['add-product'] = {
         });
         // Check a field when the person leaves it (not while they are typing).
         field.input.addEventListener('blur', function () {
+          if (pressingReview) {
+            return;
+          }
           if (field.input.value.trim() !== '' || field.input.getAttribute('aria-invalid') === 'true') {
             field.setError(checks[key](field.input.value));
           }
@@ -106,7 +121,7 @@ Screens['add-product'] = {
         summaryHolder,
         h('div', { class: 'form-row' }, [fields.code.element, fields.name.element]),
         h('div', { class: 'form-row' }, [fields.price.element, fields.stock.element]),
-        UI.buttonRow([UI.button({ type: 'submit', label: 'Review this product', iconRight: 'arrowRight', variant: 'primary' })])
+        UI.buttonRow([reviewButton])
       ]);
 
       flow.show('Product details', 'Fill in all four boxes, then review before saving.', form);
