@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sari-Sari Store</title>
+  <meta name="description" content="Sari-Sari Store: Debt (Utang) and Stock Management System">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <div class="app" id="app">
+
+    <!-- Left: store name and the main menu (every item has a text label) -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <span class="brand-mark" data-logo></span>
+          <span>
+            <span class="brand-name">Sari-Sari Store</span>
+            <span class="brand-sub">Debt (Utang) and Stock Management System</span>
+          </span>
+        </div>
+        <button class="btn btn--secondary sidebar-close" type="button" id="nav-close" data-icon="x"><span>Close menu</span></button>
+      </div>
+
+      <nav class="nav" aria-label="Main menu">
+        <div class="nav-panel">
+          <ul class="nav-list">
+            <li><a class="nav-link" href="#/home" data-nav="home" data-icon="home"><span>Home</span></a></li>
+          </ul>
+
+          <div class="nav-group">
+            <p class="nav-heading" id="nav-sell">Sell and collect</p>
+            <ul class="nav-list" aria-labelledby="nav-sell">
+              <li><a class="nav-link" href="#/cash-sale" data-nav="cash-sale" data-icon="bag"><span>Record cash sale</span></a></li>
+              <li><a class="nav-link" href="#/utang" data-nav="utang" data-icon="notebook"><span>Record utang</span></a></li>
+              <li><a class="nav-link" href="#/payment" data-nav="payment" data-icon="wallet"><span>Record utang payment</span></a></li>
+            </ul>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-heading" id="nav-products">Products</p>
+            <ul class="nav-list" aria-labelledby="nav-products">
+              <li><a class="nav-link" href="#/add-product" data-nav="add-product" data-icon="boxPlus"><span>Add product</span></a></li>
+              <li><a class="nav-link" href="#/search-product" data-nav="search-product" data-icon="search"><span>Search product</span></a></li>
+              <li><a class="nav-link" href="#/sorted" data-nav="sorted" data-icon="sort"><span>Display products sorted</span></a></li>
+              <li><a class="nav-link" href="#/low-stock" data-nav="low-stock" data-icon="alert"><span>Low-stock alert</span></a></li>
+            </ul>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-heading" id="nav-customers">Customers</p>
+            <ul class="nav-list" aria-labelledby="nav-customers">
+              <li><a class="nav-link" href="#/search-customer" data-nav="search-customer" data-icon="userSearch"><span>Search customer</span></a></li>
+            </ul>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-heading" id="nav-records">Records</p>
+            <ul class="nav-list" aria-labelledby="nav-records">
+              <li><a class="nav-link" href="#/reports" data-nav="reports" data-icon="report"><span>Reports</span></a></li>
+              <li><a class="nav-link" href="#/undo" data-nav="undo" data-icon="undo"><span>Undo last transaction</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="nav-exit">
+          <button class="nav-link nav-link--exit" type="button" id="exit-btn" data-icon="exit"><span>Exit</span></button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Right: page title, then the current screen -->
+    <div class="main-col">
+      <header class="topbar">
+        <div class="topbar-title">
+          <button class="btn btn--secondary menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="sidebar" data-icon="menu"><span>Menu</span></button>
+          <div>
+            <h1 id="page-title" tabindex="-1">Home</h1>
+            <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb" hidden></nav>
+            <p class="page-lead" id="page-lead"></p>
+          </div>
+        </div>
+
+        <div class="topbar-tools">
+          <div class="text-size" role="group" aria-labelledby="text-size-label">
+            <span class="text-size-label" id="text-size-label">Text size:</span>
+            <button type="button" data-text-size="100" aria-pressed="true">A<span class="sr-only"> normal</span></button>
+            <button type="button" data-text-size="120" aria-pressed="false">A+<span class="sr-only"> larger</span></button>
+            <button type="button" data-text-size="140" aria-pressed="false">A++<span class="sr-only"> largest</span></button>
+          </div>
+          <span class="memory-chip" data-icon="chip">Records kept in memory only</span>
+        </div>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <div class="page-messages" id="page-messages"></div>
+        <div class="screen" id="screen"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Shown after Exit -->
+  <section class="goodbye" id="goodbye" aria-labelledby="goodbye-title" hidden>
+    <div class="card">
+      <span class="brand-mark" data-logo></span>
+      <h1 id="goodbye-title" tabindex="-1">Thank you for using the system. Salamat po!</h1>
+      <p>(This session's changes were kept in memory only and are now cleared.)</p>
+      <button class="btn btn--primary" type="button" id="new-session-btn" data-icon="restart"><span>Start a new session</span></button>
+    </div>
+  </section>
+
+  <!-- The only dialogs are confirmations the console program also asks -->
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-message">
+    <div class="dialog-body"></div>
+  </dialog>
+
+  <div class="sr-only" id="sr-announcer" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Business logic (mirrors the Java classes) -->
+  <script src="js/money.js"></script>
+  <script src="js/text-rules.js"></script>
+  <script src="js/errors.js"></script>
+  <script src="js/algorithms.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/records.js"></script>
+  <script src="js/transactions.js"></script>
+  <script src="js/sample-data.js"></script>
+
+  <!-- User interface -->
+  <script src="js/ui/icons.js"></script>
+  <script src="js/ui/components.js"></script>
+  <script src="js/ui/flow.js"></script>
+  <script src="js/ui/shell.js"></script>
+  <script src="js/ui/home.js"></script>
+  <script src="js/ui/add-product.js"></script>
+  <script src="js/ui/search-product.js"></script>
+  <script src="js/ui/cash-sale.js"></script>
+  <script src="js/ui/utang.js"></script>
+  <script src="js/ui/payment.js"></script>
+  <script src="js/ui/search-customer.js"></script>
+  <script src="js/ui/sorted-products.js"></script>
+  <script src="js/ui/low-stock.js"></script>
+  <script src="js/ui/reports.js"></script>
+  <script src="js/ui/undo.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
