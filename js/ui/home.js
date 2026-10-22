@@ -91,7 +91,7 @@ Screens.home = {
         tile('#/low-stock', 'alert', 'Low-stock alert', 'Products with ' + limit + ' or fewer pieces, lowest stock first.')
       ]),
       group('group-customers', 'Customers', [
-        tile('#/search-customer', 'userSearch', 'Search customer', 'Name, balance and full history.')
+        tile('#/customers', 'users', 'View customers', 'All customers A to Z, or search the ones who still owe.')
       ]),
       group('group-records', 'Records', [
         tile('#/reports', 'report', 'Reports', 'Cash sales, outstanding utang, top 3 best sellers, customers with utang.'),

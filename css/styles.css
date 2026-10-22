@@ -2253,6 +2253,7 @@ body.nav-locked {
 
 .segmented button[aria-pressed="true"]::before {
   content: "\2713\00a0";
+  content: "\2713\00a0" / "";   /* decorative: aria-pressed already says it is chosen */
   color: var(--primary);
 }
 

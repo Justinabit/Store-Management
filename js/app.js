@@ -13,7 +13,8 @@ const App = (function () {
   /** Small UI states kept for this session only (never saved). */
   const state = {
     sampleNoticeHidden: false,
-    sortOrder: 'name'
+    sortOrder: 'name',
+    customerView: 'all'
   };
 
   function start() {
@@ -166,6 +167,7 @@ const App = (function () {
     session = SampleData.createSession();
     state.sampleNoticeHidden = false;
     state.sortOrder = 'name';
+    state.customerView = 'all';
     Shell.hideGoodbye();
     if (window.location.hash === '#/home') {
       render(true);
