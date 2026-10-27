@@ -14,8 +14,9 @@ const TextRules = (function () {
   const NAME_PATTERN = /^[\p{L}\p{N} '’\-.,&()/]+$/u;
   const HAS_LETTER_OR_DIGIT = /[\p{L}\p{N}]/u;
 
-  /** Letters, digits and hyphens only, e.g. "P001" or "SKU-12". */
+  /** Letters, digits and hyphens, with at least one letter or digit, e.g. "P001" or "SKU-12". */
   const CODE_PATTERN = /^[A-Za-z0-9-]+$/;
+  const CODE_HAS_LETTER_OR_DIGIT = /[A-Za-z0-9]/;
 
   /**
    * Removes spaces at the start and end and turns repeated inner spaces into
@@ -60,6 +61,9 @@ const TextRules = (function () {
     }
     if (!CODE_PATTERN.test(cleaned)) {
       return 'The product code may only contain letters, numbers and hyphens (no spaces).';
+    }
+    if (!CODE_HAS_LETTER_OR_DIGIT.test(cleaned)) {
+      return 'The product code must contain at least one letter or number.';
     }
     if (cleaned.toUpperCase() === CANCEL_WORD) {
       return '"' + CANCEL_WORD + '" is reserved for cancelling and cannot be used as a code.';

@@ -68,6 +68,12 @@ Screens.utang = {
         session: session,
         allowCreate: true,
         onChoose: function (customer, isNew) {
+          // PAY-FIRST RULE: a customer who still owes money must pay the full
+          // balance before getting another utang (Main.recordUtang() in Java).
+          if (customer.hasOutstandingUtang()) {
+            chooser.showError(UtangTransaction.payFirstMessage(customer));
+            return;
+          }
           st.customer = customer;
           st.isNew = isNew;
           showProduct();
@@ -236,7 +242,9 @@ Screens.utang = {
     // Opened from a customer's page: start with that customer already chosen.
     const preset = route.query.get('customer');
     const presetCustomer = preset ? session.customerRecords.findByName(preset) : null;
-    if (presetCustomer !== null) {
+    if (presetCustomer !== null && presetCustomer.hasOutstandingUtang()) {
+      showCustomer(UtangTransaction.payFirstMessage(presetCustomer));   // pay-first rule
+    } else if (presetCustomer !== null) {
       st.customer = presetCustomer;
       showProduct();
     } else {

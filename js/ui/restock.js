@@ -1,5 +1,5 @@
 /*
- * 12. Restock product (Main.restockProduct()).
+ * 11. Restock product (Main.restockProduct()).
  * Choose product -> quantity received -> check -> done. Stock goes up by the
  * quantity received; sales, cash sales and customer balances do not change.
  * The restock goes on top of the undo stack, so it can be undone.

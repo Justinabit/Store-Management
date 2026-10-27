@@ -294,6 +294,29 @@ class UtangTransaction extends ProductTransaction {
     return this.#customer;
   }
 
+  /**
+   * The pay-first message, e.g. "Aling Nena still owes PHP 20.00. Pay the
+   * full balance first (Record utang payment) before getting another utang."
+   * Kept in one place so the screen and validate() always say the same thing.
+   */
+  static payFirstMessage(customer) {
+    return customer.getName() + ' still owes ' + Money.format(customer.getBalance())
+      + '. Pay the full balance first (Record utang payment) before getting another utang.';
+  }
+
+  /**
+   * PAY-FIRST RULE (mirrors UtangTransaction.validate() in Java): a customer
+   * who still owes money cannot get another utang until the WHOLE balance is
+   * paid. Checked right before the utang is recorded, so the rule cannot be
+   * skipped. Then the parent class (ProductTransaction) checks the stock.
+   */
+  validate() {
+    if (this.#customer.hasOutstandingUtang()) {
+      throw new StoreError(UtangTransaction.payFirstMessage(this.#customer));
+    }
+    super.validate();
+  }
+
   applyChanges() {
     this.getProduct().sell(this.getQuantity());
     this.#customer.addDebt(this.getTotal());

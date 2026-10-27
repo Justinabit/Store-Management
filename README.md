@@ -32,8 +32,18 @@ Pancit Canton with 4 pieces plus a delivery of 20 becomes 24. Stock cannot go
 above 1,000,000 pieces. Restocking does not change sales, cash sales or
 customer balances, and it can be reversed with *Undo last transaction*.
 
+**Pay first before another utang:** a customer who still owes money cannot
+get another utang. Choosing them in *Record utang* shows an error asking for
+the full balance to be paid first with *Record utang payment*. Once the
+balance is fully paid (PHP 0.00), the customer can get utang again. This
+matches the Java program's rule, including the safety check in
+`UtangTransaction.validate()`.
+
 **Whole numbers** (quantities and stock) are typed without leading zeros:
 `05` is rejected, while a single `0` is accepted where the range allows it.
+
+**Product codes** must contain at least one letter or number, so a code such
+as `---` is rejected.
 
 ## Data structures and algorithms
 
